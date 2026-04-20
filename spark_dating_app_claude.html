@@ -1,86 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-:root{--color-background-primary:#ffffff;--color-background-secondary:#f8f9fa;--color-background-info:#e8f4fd;--color-text-primary:#1a1a1a;--color-text-secondary:#4a4a4a;--color-text-tertiary:#757575;--color-text-info:#007bff;--color-border-secondary:#e0e0e0;--color-border-tertiary:#eeeeee;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}
-.app{max-width:420px;margin:0 auto;min-height:720px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;font-family:var(--font-sans)}
-.topbar{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
-.logo{font-size:20px;font-weight:500;color:var(--color-text-primary);letter-spacing:-0.5px}.logo span{color:#D4537E}
-.nav-icons{display:flex;gap:12px}
-.nav-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--color-text-secondary)}
-.screen{flex:1;display:none;flex-direction:column;overflow:hidden}.screen.active{display:flex}
-.card-stack{flex:1;position:relative;padding:16px 16px 0;display:flex;justify-content:center;align-items:flex-start;overflow:hidden}
-.profile-card{width:100%;max-width:370px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:18px;overflow:hidden;user-select:none;transition:transform .38s ease,opacity .38s ease}
-.profile-card.fly-right{transform:translateX(140%) rotate(24deg)!important;opacity:0}
-.profile-card.fly-left{transform:translateX(-140%) rotate(-24deg)!important;opacity:0}
-.profile-card.fly-up{transform:translateY(-130%) scale(0.9)!important;opacity:0}
-.avatar-area{height:310px;position:relative;overflow:hidden;background:var(--color-background-secondary)}
-.avatar-area img{width:100%;height:100%;object-fit:cover;display:block}
-.photo-dots{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
-.dot{width:26px;height:3px;border-radius:2px;background:rgba(255,255,255,0.4)}.dot.active{background:#fff}
-.profile-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px 18px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.62))}
-.profile-name{font-size:22px;font-weight:500;color:#fff}
-.profile-loc{font-size:13px;color:rgba(255,255,255,.85);margin-top:2px}
-.profile-body{padding:14px 18px 10px}
-.profile-bio{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px}
-.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.tag{font-size:11px;padding:3px 9px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
-.facts-row{display:flex;gap:10px;flex-wrap:wrap}
-.fact{font-size:11px;color:var(--color-text-tertiary)}
-.action-bar{padding:12px 20px 16px;display:flex;justify-content:center;gap:18px;flex-shrink:0}
-.action-btn{width:54px;height:54px;border-radius:50%;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:background .15s,transform .1s}
-.action-btn:hover{background:var(--color-background-secondary);transform:scale(1.06)}
-.action-btn.like{border-color:#ED93B1}.action-btn.nope{border-color:#F0997B}.action-btn.super{border-color:#85B7EB}
-.action-btn:disabled{opacity:.4;cursor:default;transform:none}
-.match-toast{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);z-index:30;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:18px;padding:28px 24px;text-align:center;min-width:260px}
-.match-toast.show{display:block;transform:translate(-50%,-50%) scale(1)}
-.mt-avatars{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
-.mt-av-fall{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500;border:2.5px solid #D4537E}
-.mt-title{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
-.mt-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:16px}
-.mt-btns{display:flex;gap:10px;justify-content:center}
-.mt-btn-msg{background:#D4537E;color:#fff;border:none;padding:9px 20px;border-radius:22px;font-size:13px;cursor:pointer;font-family:var(--font-sans)}
-.mt-btn-skip{background:none;color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);padding:9px 20px;border-radius:22px;font-size:13px;cursor:pointer;font-family:var(--font-sans)}
-.section-title{font-size:15px;font-weight:500;padding:14px 18px 6px;color:var(--color-text-primary);flex-shrink:0}
-.match-scroll{display:flex;gap:12px;padding:6px 18px 14px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
-.match-scroll::-webkit-scrollbar{display:none}
-.match-bubble{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
-.mb-fall{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;border:2.5px solid #D4537E}
-.match-name-sm{font-size:11px;color:var(--color-text-secondary);text-align:center}
-.conv-list{flex:1;overflow-y:auto}
-.conv-item{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:background .1s}
-.conv-item:hover{background:var(--color-background-secondary)}
-.conv-av-fall{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;flex-shrink:0}
-.conv-info{flex:1;min-width:0}
-.conv-name{font-size:14px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:6px}
-.conv-preview{font-size:12px;color:var(--color-text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.conv-time{font-size:11px;color:var(--color-text-tertiary);flex-shrink:0}
-.ai-badge{font-size:10px;padding:2px 6px;background:var(--color-background-info);color:var(--color-text-info);border-radius:10px;font-weight:500}
-.chat-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
-.back-btn{font-size:18px;cursor:pointer;color:var(--color-text-secondary);padding:4px}
-.chat-av-fall{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
-.chat-header-info{flex:1}
-.chat-header-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
-.chat-header-sub{font-size:11px;color:var(--color-text-tertiary)}
-.ai-toggle{font-size:11px;background:var(--color-background-info);color:var(--color-text-info);padding:4px 10px;border-radius:16px;cursor:pointer;white-space:nowrap;border:none;font-family:var(--font-sans)}
-.ai-toggle.off{background:var(--color-background-secondary);color:var(--color-text-secondary)}
-.messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:80%;padding:9px 13px;border-radius:16px;font-size:13px;line-height:1.5}
-.msg.them{background:var(--color-background-secondary);color:var(--color-text-primary);border-bottom-left-radius:4px;align-self:flex-start}
-.msg.me{background:#D4537E;color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
-.msg.typing{background:var(--color-background-info);color:var(--color-text-info);align-self:flex-start;font-size:12px;font-style:italic}
-.suggest-row{padding:6px 14px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
-.suggest-row::-webkit-scrollbar{display:none}
-.suggest-chip{font-size:11px;background:var(--color-background-info);color:var(--color-text-info);padding:5px 11px;border-radius:14px;white-space:nowrap;cursor:pointer;border:0.5px solid var(--color-border-tertiary);flex-shrink:0}
-.suggest-chip:hover{opacity:.75}
-.chat-input-row{padding:10px 14px;display:flex;gap:8px;align-items:center;border-top:0.5px solid var(--color-border-tertiary);flex-shrink:0}
-.chat-input{flex:1;border:0.5px solid var(--color-border-secondary);border-radius:22px;padding:9px 14px;font-size:13px;font-family:var(--font-sans);background:var(--color-background-secondary);color:var(--color-text-primary);outline:none}
-.send-btn{width:36px;height:36px;border-radius:50%;background:#D4537E;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;flex-shrink:0}
-.empty-state{text-align:center;padding:50px 20px;color:var(--color-text-tertiary);font-size:14px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark | AI Dating</title>
+    <style>
+        :root {
+            --color-background-primary: #ffffff;
+            --color-background-secondary: #f8f9fa;
+            --color-background-info: #e8f4fd;
+            --color-text-primary: #1a1a1a;
+            --color-text-secondary: #4a4a4a;
+            --color-text-tertiary: #757575;
+            --color-text-info: #007bff;
+            --color-border-secondary: #e0e0e0;
+            --color-border-tertiary: #eeeeee;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        *{box-sizing:border-box;margin:0;padding:0}
+        .app{max-width:420px;margin:0 auto;min-height:720px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;font-family:var(--font-sans)}
+        .topbar{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+        .logo{font-size:20px;font-weight:500;color:var(--color-text-primary);letter-spacing:-0.5px}.logo span{color:#D4537E}
+        .nav-icons{display:flex;gap:12px}
+        .nav-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--color-text-secondary)}
+        .screen{flex:1;display:none;flex-direction:column;overflow:hidden}.screen.active{display:flex}
+        .card-stack{flex:1;position:relative;padding:16px 16px 0;display:flex;justify-content:center;align-items:flex-start;overflow:hidden}
+        .profile-card{width:100%;max-width:370px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:18px;overflow:hidden;user-select:none;transition:transform .38s ease,opacity .38s ease}
+        .profile-card.fly-right{transform:translateX(140%) rotate(24deg)!important;opacity:0}
+        .profile-card.fly-left{transform:translateX(-140%) rotate(-24deg)!important;opacity:0}
+        .profile-card.fly-up{transform:translateY(-130%) scale(0.9)!important;opacity:0}
+        .avatar-area{height:310px;position:relative;overflow:hidden;background:var(--color-background-secondary)}
+        .avatar-area img{width:100%;height:100%;object-fit:cover;display:block}
+        .avatar-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;font-weight:500}
+        .photo-dots{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+        .dot{width:26px;height:3px;border-radius:2px;background:rgba(255,255,255,0.4)}.dot.active{background:#fff}
+        .profile-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px 18px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.62))}
+        .profile-name{font-size:22px;font-weight:500;color:#fff}
+        .profile-loc{font-size:13px;color:rgba(255,255,255,.85);margin-top:2px}
+        .profile-body{padding:14px 18px 10px}
+        .profile-bio{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px}
+        .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+        .tag{font-size:11px;padding:3px 9px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+        .facts-row{display:flex;gap:10px;flex-wrap:wrap}
+        .fact{font-size:11px;color:var(--color-text-tertiary)}
+        .action-bar{padding:12px 20px 16px;display:flex;justify-content:center;gap:18px;flex-shrink:0}
+        .action-btn{width:54px;height:54px;border-radius:50%;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:background .15s,transform .1s}
+        .action-btn:hover{background:var(--color-background-secondary);transform:scale(1.06)}
+        .action-btn.like{border-color:#ED93B1}.action-btn.nope{border-color:#F0997B}.action-btn.super{border-color:#85B7EB}
+        .action-btn:disabled{opacity:.4;cursor:default;transform:none}
+
+        .match-toast{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);z-index:30;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:18px;padding:28px 24px;text-align:center;min-width:260px;transition:opacity .25s,transform .25s}
+        .match-toast.show{display:block;transform:translate(-50%,-50%) scale(1)}
+        .mt-avatars{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+        .mt-av{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2.5px solid #D4537E}
+        .mt-av-fall{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500;border:2.5px solid #D4537E}
+        .mt-title{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+        .mt-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:16px}
+        .mt-btns{display:flex;gap:10px;justify-content:center}
+        .mt-btn-msg{background:#D4537E;color:#fff;border:none;padding:9px 20px;border-radius:22px;font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+        .mt-btn-skip{background:none;color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);padding:9px 20px;border-radius:22px;font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+
+        .section-title{font-size:15px;font-weight:500;padding:14px 18px 6px;color:var(--color-text-primary);flex-shrink:0}
+        .match-scroll{display:flex;gap:12px;padding:6px 18px 14px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+        .match-scroll::-webkit-scrollbar{display:none}
+        .match-bubble{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
+        .mb-img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:2.5px solid #D4537E}
+        .mb-fall{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;border:2.5px solid #D4537E}
+        .match-name-sm{font-size:11px;color:var(--color-text-secondary);text-align:center}
+        .conv-list{flex:1;overflow-y:auto}
+        .conv-item{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:background .1s}
+        .conv-item:hover{background:var(--color-background-secondary)}
+        .conv-av{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0}
+        .conv-av-fall{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;flex-shrink:0}
+        .conv-info{flex:1;min-width:0}
+        .conv-name{font-size:14px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:6px}
+        .conv-preview{font-size:12px;color:var(--color-text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+        .conv-time{font-size:11px;color:var(--color-text-tertiary);flex-shrink:0}
+        .ai-badge{font-size:10px;padding:2px 6px;background:var(--color-background-info);color:var(--color-text-info);border-radius:10px;font-weight:500}
+        .chat-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+        .back-btn{font-size:18px;cursor:pointer;color:var(--color-text-secondary);padding:4px}
+        .chat-av{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0}
+        .chat-av-fall{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
+        .chat-header-info{flex:1}
+        .chat-header-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+        .chat-header-sub{font-size:11px;color:var(--color-text-tertiary)}
+        .ai-toggle{font-size:11px;background:var(--color-background-info);color:var(--color-text-info);padding:4px 10px;border-radius:16px;cursor:pointer;white-space:nowrap;border:none;font-family:var(--font-sans)}
+        .ai-toggle.off{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+        .messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+        .msg{max-width:80%;padding:9px 13px;border-radius:16px;font-size:13px;line-height:1.5}
+        .msg.them{background:var(--color-background-secondary);color:var(--color-text-primary);border-bottom-left-radius:4px;align-self:flex-start}
+        .msg.me{background:#D4537E;color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+        .msg.typing{background:var(--color-background-info);color:var(--color-text-info);align-self:flex-start;font-size:12px;font-style:italic}
+        .suggest-row{padding:6px 14px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+        .suggest-row::-webkit-scrollbar{display:none}
+        .suggest-chip{font-size:11px;background:var(--color-background-info);color:var(--color-text-info);padding:5px 11px;border-radius:14px;white-space:nowrap;cursor:pointer;border:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+        .suggest-chip:hover{opacity:.75}
+        .chat-input-row{padding:10px 14px;display:flex;gap:8px;align-items:center;border-top:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+        .chat-input{flex:1;border:0.5px solid var(--color-border-secondary);border-radius:22px;padding:9px 14px;font-size:13px;font-family:var(--font-sans);background:var(--color-background-secondary);color:var(--color-text-primary);outline:none}
+        .send-btn{width:36px;height:36px;border-radius:50%;background:#D4537E;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;flex-shrink:0}
+        .profile-view{flex:1;overflow-y:auto;padding:20px}
+        .my-av-wrap{width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 12px;background:var(--color-background-secondary)}
+        .my-av-wrap img{width:100%;height:100%;object-fit:cover}
+        .my-name{text-align:center;font-size:18px;font-weight:500;color:var(--color-text-primary)}
+        .my-sub{text-align:center;font-size:12px;color:var(--color-text-tertiary);margin-top:3px}
+        .psec{margin-top:22px}
+        .psec-label{font-size:11px;color:var(--color-text-tertiary);letter-spacing:.4px;margin-bottom:8px}
+        .prow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;color:var(--color-text-primary)}
+        .prow:last-child{border-bottom:none}
+        .prow-val{color:var(--color-text-secondary);font-size:13px}
+        .bottomnav{display:flex;border-top:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+        .bnav-btn{flex:1;padding:11px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:10px;color:var(--color-text-tertiary);transition:color .15s;background:none;border:none;font-family:var(--font-sans)}
+        .bnav-btn.active{color:#D4537E}
+        .bnav-icon{font-size:18px;position:relative}
+        .bdot{position:absolute;top:-2px;right:-4px;width:7px;height:7px;background:#D4537E;border-radius:50%;border:1.5px solid var(--color-background-primary)}
+        .empty-state{text-align:center;padding:50px 20px;color:var(--color-text-tertiary);font-size:14px}
+
+        /* API key banner */
+        .api-banner{background:#fff8e1;border-bottom:0.5px solid #ffe082;padding:10px 16px;font-size:12px;color:#795548;display:flex;align-items:center;gap:8px;flex-shrink:0}
+        .api-banner a{color:#D4537E;font-weight:500;text-decoration:none}
+        .api-banner input{flex:1;border:0.5px solid #e0e0e0;border-radius:16px;padding:6px 12px;font-size:12px;font-family:var(--font-sans);outline:none}
+        .api-banner button{background:#D4537E;color:#fff;border:none;border-radius:16px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--font-sans);white-space:nowrap}
+    </style>
 </head>
 <body>
 <div class="app">
@@ -88,6 +129,14 @@
     <div class="logo">spark<span>.</span></div>
     <div class="nav-icons"><div class="nav-icon">⚡</div><div class="nav-icon">🔔</div></div>
   </div>
+
+  <!-- API Key banner shown until key is saved -->
+  <div class="api-banner" id="api-banner">
+    <span>🔑</span>
+    <input id="banner-key-input" placeholder="Paste Gemini API key from aistudio.google.com"/>
+    <button id="banner-save-btn">Save</button>
+  </div>
+
   <div class="screen active" id="screen-discover">
     <div class="card-stack" id="card-stack">
       <div class="profile-card" id="profile-card">
@@ -105,97 +154,86 @@
         <div class="mt-btns"><button class="mt-btn-msg" id="mt-msg-btn">Message</button><button class="mt-btn-skip" id="mt-skip-btn">Keep swiping</button></div>
       </div>
     </div>
-    <div class="action-bar">
-      <div class="action-btn nope" id="btn-nope">✕</div>
-      <div class="action-btn super" id="btn-super">★</div>
-      <div class="action-btn like" id="btn-like">♥</div>
-    </div>
+    <div class="action-bar"><div class="action-btn nope" id="btn-nope">✕</div><div class="action-btn super" id="btn-super">★</div><div class="action-btn like" id="btn-like">♥</div></div>
   </div>
-  <div class="screen" id="screen-matches">
-    <div class="section-title">New matches</div>
-    <div class="match-scroll" id="match-scroll"></div>
-    <div class="section-title">Messages</div>
-    <div class="conv-list" id="conv-list"></div>
-  </div>
+  <div class="screen" id="screen-matches"><div class="section-title">New matches</div><div class="match-scroll" id="match-scroll"></div><div class="section-title">Messages</div><div class="conv-list" id="conv-list"></div></div>
   <div class="screen" id="screen-chat">
-    <div class="chat-header">
-      <div class="back-btn" id="back-btn">←</div>
-      <div id="chat-av-wrap"></div>
-      <div class="chat-header-info">
-        <div class="chat-header-name" id="chat-hname"></div>
-        <div class="chat-header-sub" id="chat-hsub">Online now</div>
+    <div class="chat-header"><div class="back-btn" id="back-btn">←</div><div id="chat-av-wrap"></div><div class="chat-header-info"><div class="chat-header-name" id="chat-hname"></div><div class="chat-header-sub" id="chat-hsub">Online now</div></div><button class="ai-toggle" id="ai-toggle">✦ AI on</button></div>
+    <div class="messages" id="messages"></div><div class="suggest-row" id="suggest-row"></div>
+    <div class="chat-input-row"><input class="chat-input" id="chat-input" placeholder="Type a message…"/><button class="send-btn" id="send-btn">↑</button></div>
+  </div>
+  <div class="screen" id="screen-profile">
+    <div class="profile-view">
+      <div class="my-av-wrap"><img src="https://i.pravatar.cc/160?img=47" alt="you"/></div>
+      <div class="my-name">Your Profile</div>
+      <div class="my-sub">Member since 2024</div>
+      <div class="psec">
+        <div class="psec-label">GEMINI API KEY</div>
+        <div class="chat-input-row" style="border-top:none;padding:0;margin-top:8px;">
+          <input class="chat-input" id="api-key-input" placeholder="Paste Gemini API key"/>
+          <button class="send-btn" id="save-api-key-btn" title="Save key">✓</button>
+        </div>
+        <div class="fact" style="margin-top:8px;font-size:11px;color:var(--color-text-tertiary);">
+          Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#D4537E">aistudio.google.com</a>. Stored only in your browser.
+        </div>
       </div>
-      <button class="ai-toggle" id="ai-toggle">✦ AI on</button>
-    </div>
-    <div class="messages" id="messages"></div>
-    <div class="suggest-row" id="suggest-row"></div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chat-input" placeholder="Type a message…"/>
-      <button class="send-btn" id="send-btn">↑</button>
     </div>
   </div>
-  <div class="bottomnav" style="display:flex;border-top:0.5px solid var(--color-border-tertiary);flex-shrink:0">
-    <button class="bnav-btn active" data-screen="discover" style="flex:1;padding:11px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:10px;color:#D4537E;background:none;border:none;font-family:var(--font-sans)"><span style="font-size:18px">✦</span>Discover</button>
-    <button class="bnav-btn" data-screen="matches" style="flex:1;padding:11px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:10px;color:var(--color-text-tertiary);background:none;border:none;font-family:var(--font-sans)"><span style="font-size:18px">💬</span>Matches</button>
-  </div>
+  <div class="bottomnav"><button class="bnav-btn active" data-screen="discover"><span class="bnav-icon">✦</span>Discover</button><button class="bnav-btn" data-screen="matches"><span class="bnav-icon">💬<span class="bdot"></span></span>Matches</button><button class="bnav-btn" data-screen="profile"><span class="bnav-icon">👤</span>Profile</button></div>
 </div>
 
 <script>
+// ── FIXED: updated model from deprecated gemini-1.5-flash to gemini-2.0-flash ──
+const GEMINI_MODEL = 'gemini-2.0-flash';
+
+let GEMINI_API_KEY = localStorage.getItem('SPARK_GEMINI_API_KEY') || '';
+
 const profiles=[
-  {id:1,name:"Sofia",age:26,location:"Vienna, AT",photos:["https://i.pravatar.cc/400?img=47"],initials:"S",bgColor:"#FBEAF0",textColor:"#993556",bio:"Coffee enthusiast & weekend hiker.",tags:["Design","Hiking","Coffee","Art"],facts:["🎓 Uni Vienna","🌍 30+ countries","🐾 Dog mom"],matched:true,suggestions:["Favorite Vienna coffee spot?"],aiPersona:"You are Sofia, 26, a warm UX designer who loves galleries, brunch, and deep conversations. Be warm, witty, and answer the user's question directly first, then add personal detail. Keep replies to 2-3 sentences max."},
-  {id:2,name:"Marco",age:29,location:"Bratislava, SK",photos:["https://i.pravatar.cc/400?img=12"],initials:"M",bgColor:"#E6F1FB",textColor:"#185FA5",bio:"Software engineer and passionate cook.",tags:["Cooking","Tech","Coffee","Travel"],facts:["💼 Software Engineer","🍝 Pasta expert","🎮 Gamer"],matched:true,suggestions:["What's your signature dish?"],aiPersona:"You are Marco, 29, a funny laid-back engineer with a competitive pasta game. Answer the user's question first, then add humor and personality. Keep replies to 2-3 sentences max."},
-  {id:3,name:"Léa",age:27,location:"Prague, CZ",photos:["https://i.pravatar.cc/400?img=44"],initials:"L",bgColor:"#E1F5EE",textColor:"#0F6E56",bio:"Bookworm and yoga teacher.",tags:["Books","Yoga","Music","Poetry"],facts:["🎸 Plays guitar","📚 50 books/year","🌿 Plant parent"],matched:false,suggestions:["Last book that changed your perspective?"],aiPersona:"You are Léa, 27, introspective and poetic. Answer the user's question first, then add depth. Keep replies to 2-3 sentences max."},
-  {id:4,name:"Nina",age:25,location:"Kraków, PL",photos:["https://i.pravatar.cc/400?img=5"],initials:"N",bgColor:"#FDECEF",textColor:"#8E2D4F",bio:"Photographer chasing golden hour.",tags:["Photography","City Walks","Cinema","Travel"],facts:["📸 Street photographer","🎞️ Analog fan","🧭 Weekend explorer"],matched:true,suggestions:["Best hidden photo spot in your city?"],aiPersona:"You are Nina, 25, expressive and visual. Answer the user's question with vivid details. Keep replies to 2-3 sentences max."},
-  {id:5,name:"Adam",age:31,location:"Brno, CZ",photos:["https://i.pravatar.cc/400?img=20"],initials:"A",bgColor:"#EAF2FF",textColor:"#1F4B9A",bio:"Product manager, runner, board-game strategist.",tags:["Running","Board Games","Product","Podcasts"],facts:["🏃 Half-marathoner","🎲 Catan rival","🎧 Podcast addict"],matched:true,suggestions:["What board game reveals personality best?"],aiPersona:"You are Adam, 31, sharp, practical, and playful. Answer the user's question first, then add wit. Keep replies to 2-3 sentences max."},
-  {id:6,name:"Elena",age:28,location:"Budapest, HU",photos:["https://i.pravatar.cc/400?img=32"],initials:"E",bgColor:"#F5F0FF",textColor:"#5A3C91",bio:"Architect who sketches cafes and old facades.",tags:["Architecture","Sketching","Cafes","History"],facts:["🏛️ Restores old spaces","✏️ Sketchbook everywhere","🫖 Tea person"],matched:false,suggestions:["Modern or historic architecture — and why?"],aiPersona:"You are Elena, 28, reflective and articulate architect. Answer the user's question with sensory detail and warmth. Keep replies to 2-3 sentences max."},
-  {id:7,name:"Tomáš",age:30,location:"Žilina, SK",photos:["https://i.pravatar.cc/400?img=55"],initials:"T",bgColor:"#ECFBF4",textColor:"#116B4E",bio:"Startup dev who escapes to mountains every month.",tags:["Startups","Mountains","Cycling","Tech"],facts:["⛰️ Trail regular","🚴 Weekend cyclist","💡 Side-project builder"],matched:true,suggestions:["Mountains or sea for a reset weekend?"],aiPersona:"You are Tomáš, 30, energetic and straightforward startup developer. Answer the user's question first, then add personality. Keep replies to 2-3 sentences max."}
+  {id:1,name:"Sofia",age:26,location:"Vienna, AT",photos:["https://i.pravatar.cc/400?img=47","https://i.pravatar.cc/400?img=49"],initials:"S",bgColor:"#FBEAF0",textColor:"#993556",bio:"Coffee enthusiast & weekend hiker.",description:"Warm UX designer who loves galleries, brunch, and deep conversations.",tags:["Design","Hiking","Coffee","Art"],facts:["🎓 Uni Vienna","🌍 30+ countries","🐾 Dog mom"],matched:true,suggestions:["Favorite Vienna coffee spot?"],aiPersona:"You are Sofia, 26, warm and witty UX designer. Answer the latest question directly first, then add personal detail. Keep replies under 3 sentences."},
+  {id:2,name:"Marco",age:29,location:"Bratislava, SK",photos:["https://i.pravatar.cc/400?img=12","https://i.pravatar.cc/400?img=15"],initials:"M",bgColor:"#E6F1FB",textColor:"#185FA5",bio:"Software engineer and cook.",description:"Laid-back engineer with a competitive pasta game and playful humor.",tags:["Cooking","Tech","Coffee","Travel"],facts:["💼 Software Engineer","🍝 Pasta expert","🎮 Gamer"],matched:true,suggestions:["What's your signature dish?"],aiPersona:"You are Marco, 29, funny and laid-back software engineer. Answer directly first, then add humor. Keep replies under 3 sentences."},
+  {id:3,name:"Léa",age:27,location:"Prague, CZ",photos:["https://i.pravatar.cc/400?img=44","https://i.pravatar.cc/400?img=39"],initials:"L",bgColor:"#E1F5EE",textColor:"#0F6E56",bio:"Bookworm and yoga teacher.",description:"Poetic yoga teacher who values emotional depth and thoughtful conversation.",tags:["Books","Yoga","Music","Poetry"],facts:["🎸 Plays guitar","📚 50 books/year","🌿 Plant parent"],matched:false,suggestions:["Last book that changed your perspective?"],aiPersona:"You are Léa, 27, introspective and poetic yoga teacher. Answer directly first. Keep replies under 3 sentences."},
+  {id:4,name:"Nina",age:25,location:"Kraków, PL",photos:["https://i.pravatar.cc/400?img=5","https://i.pravatar.cc/400?img=6"],initials:"N",bgColor:"#FDECEF",textColor:"#8E2D4F",bio:"Photographer chasing golden hour and street stories.",description:"Creative storyteller who loves spontaneous city walks and photo challenges.",tags:["Photography","City Walks","Cinema","Travel"],facts:["📸 Street photographer","🎞️ Analog fan","🧭 Weekend explorer"],matched:true,suggestions:["Best hidden photo spot in your city?"],aiPersona:"You are Nina, 25, expressive street photographer. Answer with vivid detail. Keep replies under 3 sentences."},
+  {id:5,name:"Adam",age:31,location:"Brno, CZ",photos:["https://i.pravatar.cc/400?img=20","https://i.pravatar.cc/400?img=21"],initials:"A",bgColor:"#EAF2FF",textColor:"#1F4B9A",bio:"Product manager, runner, and board-game strategist.",description:"Grounded, witty communicator who enjoys smart banter and clear intentions.",tags:["Running","Board Games","Product","Podcasts"],facts:["🏃 Half-marathoner","🎲 Catan rival","🎧 Podcast addict"],matched:true,suggestions:["What board game reveals personality best?"],aiPersona:"You are Adam, 31, sharp and playful product manager. Answer directly first, then add wit. Keep replies under 3 sentences."},
+  {id:6,name:"Elena",age:28,location:"Budapest, HU",photos:["https://i.pravatar.cc/400?img=32","https://i.pravatar.cc/400?img=33"],initials:"E",bgColor:"#F5F0FF",textColor:"#5A3C91",bio:"Architect who sketches cafes and old facades.",description:"Thoughtful architect blending creativity with calm, detail-oriented energy.",tags:["Architecture","Sketching","Cafes","History"],facts:["🏛️ Restores old spaces","✏️ Sketchbook everywhere","🫖 Tea person"],matched:false,suggestions:["Modern or historic architecture — and why?"],aiPersona:"You are Elena, 28, reflective architect. Answer with sensory warmth. Keep replies under 3 sentences."},
+  {id:7,name:"Tomáš",age:30,location:"Žilina, SK",photos:["https://i.pravatar.cc/400?img=55","https://i.pravatar.cc/400?img=56"],initials:"T",bgColor:"#ECFBF4",textColor:"#116B4E",bio:"Startup dev who escapes to mountains every month.",description:"Energetic builder with outdoorsy balance and direct, honest communication.",tags:["Startups","Mountains","Cycling","Tech"],facts:["⛰️ Trail regular","🚴 Weekend cyclist","💡 Side-project builder"],matched:true,suggestions:["Mountains or sea for a reset weekend?"],aiPersona:"You are Tomáš, 30, energetic startup developer. Be honest and direct. Keep replies under 3 sentences."}
 ];
 
 let currentIdx=0,aiEnabled=true,currentProfile=null,isSwiping=false,isSending=false;
 const histories={};
+const replyMemory={};
 profiles.forEach(p=>{
-  histories[p.id]=p.matched?[{role:'assistant',text:`Hey! I noticed you're into ${p.tags[0].toLowerCase()} too. Ask me anything 👀`}]:[];
+  histories[p.id]=p.matched?[{role:'model',text:`Hey! I noticed you're into ${p.tags[0].toLowerCase()} too. Ask me anything 👀`}]:[];
+  replyMemory[p.id]=new Set();
 });
 
-function makeAvatar(cls,bg,col,init){
-  const d=document.createElement('div');
-  d.className=cls;d.style.background=bg;d.style.color=col;d.textContent=init;
-  return d;
+// ── Banner key save ──
+function updateBanner(){
+  const banner=document.getElementById('api-banner');
+  if(banner) banner.style.display=GEMINI_API_KEY?'none':'flex';
 }
+document.getElementById('banner-save-btn').onclick=()=>{
+  const val=document.getElementById('banner-key-input').value.trim();
+  if(val){GEMINI_API_KEY=val;localStorage.setItem('SPARK_GEMINI_API_KEY',val);updateBanner();}
+};
+updateBanner();
 
-function makeAvatarWithImg(src,imgCls,fallCls,bg,col,init){
-  const img=document.createElement('img');
-  img.className=imgCls;img.src=src;img.alt='';
-  img.onerror=()=>img.replaceWith(makeAvatar(fallCls,bg,col,init));
-  return img;
-}
-
-function setActionBtns(disabled){
-  ['btn-nope','btn-super','btn-like'].forEach(id=>{document.getElementById(id).disabled=disabled;});
-}
+function makeImg(src,cls,fallCls,bg,col,init){const img=document.createElement('img');img.className=cls;img.src=src;img.alt='';img.onerror=()=>{const d=document.createElement('div');d.className=fallCls;d.style.background=bg;d.style.color=col;d.textContent=init;img.replaceWith(d);};return img;}
+function setActionBtns(disabled){['btn-nope','btn-super','btn-like'].forEach(id=>{document.getElementById(id).disabled=disabled;});}
 
 function renderCard(){
   const stack=document.getElementById('card-stack');
-  if(currentIdx>=profiles.length){
-    stack.innerHTML='<div class="empty-state">You\'ve seen everyone nearby!</div>';return;
-  }
+  if(currentIdx>=profiles.length){stack.innerHTML='<div class="empty-state">You\'ve seen everyone nearby!</div>';return;}
   const p=profiles[currentIdx];
-  const aa=document.getElementById('avatar-area');
-  aa.innerHTML='';
-  const img=document.createElement('img');
-  img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
-  img.src=p.photos[0];img.alt=p.name;
-  const fb=makeAvatar('',p.bgColor,p.textColor,p.initials);
-  fb.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;font-weight:500;display:none`;
-  img.onerror=()=>{img.style.display='none';fb.style.display='flex';};
-  aa.appendChild(img);aa.appendChild(fb);
+  const aa=document.getElementById('avatar-area');aa.innerHTML='';
+  const img=document.createElement('img');img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';img.src=p.photos[0];img.alt=p.name;
+  aa.appendChild(img);
   const dots=document.createElement('div');dots.className='photo-dots';
-  const d=document.createElement('div');d.className='dot active';dots.appendChild(d);
+  p.photos.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');dots.appendChild(d);});
   aa.appendChild(dots);
   const ov=document.createElement('div');ov.className='profile-overlay';
   ov.innerHTML=`<div class="profile-name">${p.name}, ${p.age}</div><div class="profile-loc">📍 ${p.location}</div>`;
   aa.appendChild(ov);
-  document.getElementById('pbio').textContent=p.bio;
+  document.getElementById('pbio').textContent=`${p.bio} ${p.description||''}`.trim();
   document.getElementById('ptags').innerHTML=p.tags.map(t=>`<div class="tag">${t}</div>`).join('');
   document.getElementById('pfacts').innerHTML=p.facts.map(f=>`<div class="fact">${f}</div>`).join('');
 }
@@ -203,7 +241,9 @@ function renderCard(){
 function showMatchToast(p,onMsg,onSkip){
   const toast=document.getElementById('match-toast');
   const mtAv=document.getElementById('mt-av');
-  mtAv.style.background=p.bgColor;mtAv.style.color=p.textColor;mtAv.textContent=p.initials;
+  mtAv.className='mt-av-fall';mtAv.style.background=p.bgColor;mtAv.style.color=p.textColor;mtAv.textContent=p.initials;
+  const mImg=makeImg(p.photos[0],'mt-av','mt-av-fall',p.bgColor,p.textColor,p.initials);
+  mtAv.replaceWith(mImg);
   document.getElementById('mt-sub').textContent=`You and ${p.name} liked each other`;
   toast.classList.add('show');
   document.getElementById('mt-msg-btn').onclick=()=>{toast.classList.remove('show');onMsg();};
@@ -235,25 +275,21 @@ document.getElementById('btn-super').onclick=()=>swipe('up');
 
 function renderMatches(){
   const matched=profiles.filter(p=>p.matched);
-  const ms=document.getElementById('match-scroll');
-  ms.innerHTML='';
+  const ms=document.getElementById('match-scroll');ms.innerHTML='';
   matched.forEach(p=>{
     const w=document.createElement('div');w.className='match-bubble';
     w.onclick=()=>{openChat(p);switchScreen('chat');};
-    const av=makeAvatar('mb-fall',p.bgColor,p.textColor,p.initials);
-    w.appendChild(av);
+    w.appendChild(makeImg(p.photos[0],'mb-img','mb-fall',p.bgColor,p.textColor,p.initials));
     const nm=document.createElement('div');nm.className='match-name-sm';nm.textContent=p.name;
     w.appendChild(nm);ms.appendChild(w);
   });
-  const cl=document.getElementById('conv-list');
-  cl.innerHTML='';
+  const cl=document.getElementById('conv-list');cl.innerHTML='';
   matched.forEach(p=>{
     const hist=histories[p.id];
     const last=hist.length?hist[hist.length-1].text:'Say hello!';
     const item=document.createElement('div');item.className='conv-item';
     item.onclick=()=>{openChat(p);switchScreen('chat');};
-    const av=makeAvatar('conv-av-fall',p.bgColor,p.textColor,p.initials);
-    item.appendChild(av);
+    item.appendChild(makeImg(p.photos[0],'conv-av','conv-av-fall',p.bgColor,p.textColor,p.initials));
     const info=document.createElement('div');info.className='conv-info';
     info.innerHTML=`<div class="conv-name">${p.name}<span class="ai-badge">✦ AI</span></div><div class="conv-preview">${last.substring(0,52)}${last.length>52?'…':''}</div>`;
     item.appendChild(info);
@@ -264,9 +300,8 @@ function renderMatches(){
 
 function openChat(p){
   currentProfile=p;
-  const wrap=document.getElementById('chat-av-wrap');
-  wrap.innerHTML='';
-  wrap.appendChild(makeAvatar('chat-av-fall',p.bgColor,p.textColor,p.initials));
+  const wrap=document.getElementById('chat-av-wrap');wrap.innerHTML='';
+  wrap.appendChild(makeImg(p.photos[0],'chat-av','chat-av-fall',p.bgColor,p.textColor,p.initials));
   document.getElementById('chat-hname').textContent=p.name;
   document.getElementById('chat-hsub').textContent=`${p.age} · ${p.location}`;
   renderMessages();renderSuggestions();
@@ -275,16 +310,9 @@ function openChat(p){
 function renderMessages(){
   if(!currentProfile)return;
   const hist=histories[currentProfile.id];
-  const c=document.getElementById('messages');
-  c.innerHTML='';
-  if(!hist.length){
-    c.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--color-text-tertiary);font-size:13px">Start the conversation ✨</div>';return;
-  }
-  hist.forEach(msg=>{
-    const d=document.createElement('div');
-    d.className='msg '+(msg.role==='user'?'me':'them');
-    d.textContent=msg.text;c.appendChild(d);
-  });
+  const c=document.getElementById('messages');c.innerHTML='';
+  if(!hist.length){c.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--color-text-tertiary);font-size:13px">Start the conversation ✨</div>';return;}
+  hist.forEach(msg=>{const d=document.createElement('div');d.className='msg '+(msg.role==='user'?'me':'them');d.textContent=msg.text;c.appendChild(d);});
   setTimeout(()=>{c.scrollTop=c.scrollHeight;},30);
 }
 
@@ -294,36 +322,63 @@ function renderSuggestions(){
   row.innerHTML=currentProfile.suggestions.map(s=>`<div class="suggest-chip" onclick="useSuggestion('${s.replace(/'/g,"\\'")}')">✦ ${s}</div>`).join('');
 }
 
-function useSuggestion(text){
-  document.getElementById('chat-input').value=text;
-  document.getElementById('chat-input').focus();
+function useSuggestion(text){document.getElementById('chat-input').value=text;document.getElementById('chat-input').focus();}
+
+function uniqueReply(profileId,createReply){
+  for(let i=0;i<5;i++){
+    const candidate=createReply();
+    if(!replyMemory[profileId].has(candidate)){
+      replyMemory[profileId].add(candidate);
+      if(replyMemory[profileId].size>50){const first=replyMemory[profileId].values().next().value;replyMemory[profileId].delete(first);}
+      return candidate;
+    }
+  }
+  return createReply();
 }
 
-async function callClaude(profile,history){
-  const messages=history.map(m=>({role:m.role,content:m.text}));
+async function callGemini(profile,history){
+  if(!GEMINI_API_KEY)return{reply:null,error:'missing_key'};
+  const contents=history.map(m=>({role:m.role,parts:[{text:m.text}]}));
+  if(!contents.length||contents[contents.length-1].role!=='user')return{reply:null,error:'bad_history'};
+
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),12000);
+
+  // ── KEY FIX: gemini-2.0-flash replaces deprecated gemini-1.5-flash ──
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const body={
+    contents,
+    systemInstruction:{parts:[{text:profile.aiPersona+' Always answer the latest user question directly first.'}]},
+    generationConfig:{temperature:1.15,topP:0.95,maxOutputTokens:700}
+  };
+
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:profile.aiPersona,
-        messages
-      })
-    });
-    if(!resp.ok){
-      const err=await resp.text();
-      console.error('Claude API error:',resp.status,err);
-      return {reply:null,error:`http_${resp.status}`};
-    }
-    const data=await resp.json();
-    const reply=data?.content?.[0]?.text?.trim()||null;
-    return {reply,error:reply?null:'empty'};
+    const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+    if(!response.ok){const errorText=await response.text();console.error('Gemini error:',response.status,errorText);return{reply:null,error:`http_${response.status}`,detail:errorText};}
+    const data=await response.json();
+    const reply=data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim()||null;
+    const blocked=data?.promptFeedback?.blockReason||null;
+    if(blocked)return{reply:null,error:'blocked',detail:blocked};
+    return{reply,error:reply?null:'empty_response'};
   }catch(e){
-    console.error('Claude API error:',e);
-    return {reply:null,error:'network'};
+    const kind=e?.name==='AbortError'?'timeout':'network';
+    return{reply:null,error:kind};
+  }finally{
+    clearTimeout(timeoutId);
   }
+}
+
+function friendlyError(result){
+  if(!result||!result.error)return null;
+  if(result.error==='missing_key')return'⚠️ No API key yet — paste your Gemini key in the banner above or in Profile.';
+  if(result.error==='timeout')return'Gemini timed out. Try again in a few seconds.';
+  if(result.error==='network')return'Network error. Check your connection and retry.';
+  if(result.error==='http_400')return'Gemini rejected the request (400). Check your API key and try again.';
+  if(result.error==='http_401'||result.error==='http_403')return'API key invalid or quota exceeded. Check aistudio.google.com.';
+  if(result.error==='http_429')return'Rate limit hit. Wait a moment and retry.';
+  if(result.error==='blocked')return'Gemini blocked this message. Rephrase and try again.';
+  if(result.error?.startsWith('http_5'))return'Gemini server error. Retry shortly.';
+  return'Could not get a reply right now. Please retry.';
 }
 
 async function sendMessage(){
@@ -340,9 +395,9 @@ async function sendMessage(){
     typing.className='msg typing';typing.textContent=`✦ ${currentProfile.name} is typing…`;
     msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
     try{
-      const result=await callClaude(currentProfile,[...histories[currentProfile.id]]);
-      const finalText=result.reply||'Hmm, I got a bit distracted — ask me again? 😄';
-      histories[currentProfile.id].push({role:'assistant',text:finalText});
+      const geminiResult=await callGemini(currentProfile,[...histories[currentProfile.id]]);
+      const finalText=geminiResult.reply?uniqueReply(currentProfile.id,()=>geminiResult.reply):friendlyError(geminiResult);
+      histories[currentProfile.id].push({role:'model',text:finalText});
     }finally{
       typing.remove();renderMessages();renderMatches();
     }
@@ -353,26 +408,27 @@ async function sendMessage(){
 document.getElementById('send-btn').onclick=sendMessage;
 document.getElementById('chat-input').onkeydown=e=>{if(e.key==='Enter')sendMessage();};
 document.getElementById('back-btn').onclick=()=>switchScreen('matches');
-document.getElementById('ai-toggle').onclick=function(){
-  aiEnabled=!aiEnabled;
-  this.textContent=aiEnabled?'✦ AI on':'○ AI off';
-  this.className='ai-toggle'+(aiEnabled?'':' off');
-  renderSuggestions();
-};
+document.getElementById('ai-toggle').onclick=function(){aiEnabled=!aiEnabled;this.textContent=aiEnabled?'✦ AI on':'○ AI off';this.className='ai-toggle'+(aiEnabled?'':' off');renderSuggestions();};
 
 function switchScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
-  document.querySelectorAll('.bnav-btn').forEach(b=>{
-    const isActive=b.dataset.screen===name||(name==='chat'&&b.dataset.screen==='matches');
-    b.style.color=isActive?'#D4537E':'var(--color-text-tertiary)';
-  });
+  document.querySelectorAll('.bnav-btn').forEach(b=>{b.classList.toggle('active',b.dataset.screen===name||(name==='chat'&&b.dataset.screen==='matches'));});
   if(name==='matches')renderMatches();
 }
+document.querySelectorAll('.bnav-btn').forEach(btn=>{btn.onclick=()=>switchScreen(btn.dataset.screen);});
 
-document.querySelectorAll('.bnav-btn').forEach(btn=>{
-  btn.onclick=()=>switchScreen(btn.dataset.screen);
-});
+const apiKeyInput=document.getElementById('api-key-input');
+const saveApiKeyBtn=document.getElementById('save-api-key-btn');
+if(apiKeyInput)apiKeyInput.value=GEMINI_API_KEY;
+if(saveApiKeyBtn){
+  saveApiKeyBtn.onclick=()=>{
+    GEMINI_API_KEY=(apiKeyInput?.value||'').trim();
+    localStorage.setItem('SPARK_GEMINI_API_KEY',GEMINI_API_KEY);
+    updateBanner();
+    alert(GEMINI_API_KEY?'Gemini API key saved ✓':'Key cleared.');
+  };
+}
 
 renderCard();renderMatches();
 </script>
