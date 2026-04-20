@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{--color-background-primary:#ffffff;--color-background-secondary:#f8f9fa;--color-background-info:#e8f4fd;--color-text-primary:#1a1a1a;--color-text-secondary:#4a4a4a;--color-text-tertiary:#757575;--color-text-info:#007bff;--color-border-secondary:#e0e0e0;--color-border-tertiary:#eeeeee;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+.app{max-width:420px;margin:0 auto;min-height:720px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;font-family:var(--font-sans)}
+.topbar{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.logo{font-size:20px;font-weight:500;color:var(--color-text-primary);letter-spacing:-0.5px}.logo span{color:#D4537E}
+.nav-icons{display:flex;gap:12px}
+.nav-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--color-text-secondary)}
+.screen{flex:1;display:none;flex-direction:column;overflow:hidden}.screen.active{display:flex}
+.card-stack{flex:1;position:relative;padding:16px 16px 0;display:flex;justify-content:center;align-items:flex-start;overflow:hidden}
+.profile-card{width:100%;max-width:370px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:18px;overflow:hidden;user-select:none;transition:transform .38s ease,opacity .38s ease}
+.profile-card.fly-right{transform:translateX(140%) rotate(24deg)!important;opacity:0}
+.profile-card.fly-left{transform:translateX(-140%) rotate(-24deg)!important;opacity:0}
+.profile-card.fly-up{transform:translateY(-130%) scale(0.9)!important;opacity:0}
+.avatar-area{height:310px;position:relative;overflow:hidden;background:var(--color-background-secondary)}
+.avatar-area img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-dots{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+.dot{width:26px;height:3px;border-radius:2px;background:rgba(255,255,255,0.4)}.dot.active{background:#fff}
+.profile-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px 18px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.62))}
+.profile-name{font-size:22px;font-weight:500;color:#fff}
+.profile-loc{font-size:13px;color:rgba(255,255,255,.85);margin-top:2px}
+.profile-body{padding:14px 18px 10px}
+.profile-bio{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tag{font-size:11px;padding:3px 9px;border-radius:20px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+.facts-row{display:flex;gap:10px;flex-wrap:wrap}
+.fact{font-size:11px;color:var(--color-text-tertiary)}
+.action-bar{padding:12px 20px 16px;display:flex;justify-content:center;gap:18px;flex-shrink:0}
+.action-btn{width:54px;height:54px;border-radius:50%;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:background .15s,transform .1s}
+.action-btn:hover{background:var(--color-background-secondary);transform:scale(1.06)}
+.action-btn.like{border-color:#ED93B1}.action-btn.nope{border-color:#F0997B}.action-btn.super{border-color:#85B7EB}
+.action-btn:disabled{opacity:.4;cursor:default;transform:none}
+.match-toast{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);z-index:30;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:18px;padding:28px 24px;text-align:center;min-width:260px}
+.match-toast.show{display:block;transform:translate(-50%,-50%) scale(1)}
+.mt-avatars{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+.mt-av-fall{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500;border:2.5px solid #D4537E}
+.mt-title{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.mt-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:16px}
+.mt-btns{display:flex;gap:10px;justify-content:center}
+.mt-btn-msg{background:#D4537E;color:#fff;border:none;padding:9px 20px;border-radius:22px;font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+.mt-btn-skip{background:none;color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);padding:9px 20px;border-radius:22px;font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+.section-title{font-size:15px;font-weight:500;padding:14px 18px 6px;color:var(--color-text-primary);flex-shrink:0}
+.match-scroll{display:flex;gap:12px;padding:6px 18px 14px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.match-scroll::-webkit-scrollbar{display:none}
+.match-bubble{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
+.mb-fall{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;border:2.5px solid #D4537E}
+.match-name-sm{font-size:11px;color:var(--color-text-secondary);text-align:center}
+.conv-list{flex:1;overflow-y:auto}
+.conv-item{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:background .1s}
+.conv-item:hover{background:var(--color-background-secondary)}
+.conv-av-fall{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;flex-shrink:0}
+.conv-info{flex:1;min-width:0}
+.conv-name{font-size:14px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:6px}
+.conv-preview{font-size:12px;color:var(--color-text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.conv-time{font-size:11px;color:var(--color-text-tertiary);flex-shrink:0}
+.ai-badge{font-size:10px;padding:2px 6px;background:var(--color-background-info);color:var(--color-text-info);border-radius:10px;font-weight:500}
+.chat-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.back-btn{font-size:18px;cursor:pointer;color:var(--color-text-secondary);padding:4px}
+.chat-av-fall{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
+.chat-header-info{flex:1}
+.chat-header-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.chat-header-sub{font-size:11px;color:var(--color-text-tertiary)}
+.ai-toggle{font-size:11px;background:var(--color-background-info);color:var(--color-text-info);padding:4px 10px;border-radius:16px;cursor:pointer;white-space:nowrap;border:none;font-family:var(--font-sans)}
+.ai-toggle.off{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:9px 13px;border-radius:16px;font-size:13px;line-height:1.5}
+.msg.them{background:var(--color-background-secondary);color:var(--color-text-primary);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.me{background:#D4537E;color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.msg.typing{background:var(--color-background-info);color:var(--color-text-info);align-self:flex-start;font-size:12px;font-style:italic}
+.suggest-row{padding:6px 14px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.suggest-row::-webkit-scrollbar{display:none}
+.suggest-chip{font-size:11px;background:var(--color-background-info);color:var(--color-text-info);padding:5px 11px;border-radius:14px;white-space:nowrap;cursor:pointer;border:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.suggest-chip:hover{opacity:.75}
+.chat-input-row{padding:10px 14px;display:flex;gap:8px;align-items:center;border-top:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.chat-input{flex:1;border:0.5px solid var(--color-border-secondary);border-radius:22px;padding:9px 14px;font-size:13px;font-family:var(--font-sans);background:var(--color-background-secondary);color:var(--color-text-primary);outline:none}
+.send-btn{width:36px;height:36px;border-radius:50%;background:#D4537E;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;flex-shrink:0}
+.empty-state{text-align:center;padding:50px 20px;color:var(--color-text-tertiary);font-size:14px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">spark<span>.</span></div>
+    <div class="nav-icons"><div class="nav-icon">⚡</div><div class="nav-icon">🔔</div></div>
+  </div>
+  <div class="screen active" id="screen-discover">
+    <div class="card-stack" id="card-stack">
+      <div class="profile-card" id="profile-card">
+        <div class="avatar-area" id="avatar-area"></div>
+        <div class="profile-body">
+          <p class="profile-bio" id="pbio"></p>
+          <div class="tags" id="ptags"></div>
+          <div class="facts-row" id="pfacts"></div>
+        </div>
+      </div>
+      <div class="match-toast" id="match-toast">
+        <div class="mt-avatars"><div id="mt-av" class="mt-av-fall"></div><div style="font-size:20px">💖</div><div class="mt-av-fall" style="background:#FBEAF0;color:#993556">YO</div></div>
+        <div class="mt-title">It's a Match!</div>
+        <div class="mt-sub" id="mt-sub"></div>
+        <div class="mt-btns"><button class="mt-btn-msg" id="mt-msg-btn">Message</button><button class="mt-btn-skip" id="mt-skip-btn">Keep swiping</button></div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <div class="action-btn nope" id="btn-nope">✕</div>
+      <div class="action-btn super" id="btn-super">★</div>
+      <div class="action-btn like" id="btn-like">♥</div>
+    </div>
+  </div>
+  <div class="screen" id="screen-matches">
+    <div class="section-title">New matches</div>
+    <div class="match-scroll" id="match-scroll"></div>
+    <div class="section-title">Messages</div>
+    <div class="conv-list" id="conv-list"></div>
+  </div>
+  <div class="screen" id="screen-chat">
+    <div class="chat-header">
+      <div class="back-btn" id="back-btn">←</div>
+      <div id="chat-av-wrap"></div>
+      <div class="chat-header-info">
+        <div class="chat-header-name" id="chat-hname"></div>
+        <div class="chat-header-sub" id="chat-hsub">Online now</div>
+      </div>
+      <button class="ai-toggle" id="ai-toggle">✦ AI on</button>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="suggest-row" id="suggest-row"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Type a message…"/>
+      <button class="send-btn" id="send-btn">↑</button>
+    </div>
+  </div>
+  <div class="bottomnav" style="display:flex;border-top:0.5px solid var(--color-border-tertiary);flex-shrink:0">
+    <button class="bnav-btn active" data-screen="discover" style="flex:1;padding:11px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:10px;color:#D4537E;background:none;border:none;font-family:var(--font-sans)"><span style="font-size:18px">✦</span>Discover</button>
+    <button class="bnav-btn" data-screen="matches" style="flex:1;padding:11px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:10px;color:var(--color-text-tertiary);background:none;border:none;font-family:var(--font-sans)"><span style="font-size:18px">💬</span>Matches</button>
+  </div>
+</div>
+
+<script>
+const profiles=[
+  {id:1,name:"Sofia",age:26,location:"Vienna, AT",photos:["https://i.pravatar.cc/400?img=47"],initials:"S",bgColor:"#FBEAF0",textColor:"#993556",bio:"Coffee enthusiast & weekend hiker.",tags:["Design","Hiking","Coffee","Art"],facts:["🎓 Uni Vienna","🌍 30+ countries","🐾 Dog mom"],matched:true,suggestions:["Favorite Vienna coffee spot?"],aiPersona:"You are Sofia, 26, a warm UX designer who loves galleries, brunch, and deep conversations. Be warm, witty, and answer the user's question directly first, then add personal detail. Keep replies to 2-3 sentences max."},
+  {id:2,name:"Marco",age:29,location:"Bratislava, SK",photos:["https://i.pravatar.cc/400?img=12"],initials:"M",bgColor:"#E6F1FB",textColor:"#185FA5",bio:"Software engineer and passionate cook.",tags:["Cooking","Tech","Coffee","Travel"],facts:["💼 Software Engineer","🍝 Pasta expert","🎮 Gamer"],matched:true,suggestions:["What's your signature dish?"],aiPersona:"You are Marco, 29, a funny laid-back engineer with a competitive pasta game. Answer the user's question first, then add humor and personality. Keep replies to 2-3 sentences max."},
+  {id:3,name:"Léa",age:27,location:"Prague, CZ",photos:["https://i.pravatar.cc/400?img=44"],initials:"L",bgColor:"#E1F5EE",textColor:"#0F6E56",bio:"Bookworm and yoga teacher.",tags:["Books","Yoga","Music","Poetry"],facts:["🎸 Plays guitar","📚 50 books/year","🌿 Plant parent"],matched:false,suggestions:["Last book that changed your perspective?"],aiPersona:"You are Léa, 27, introspective and poetic. Answer the user's question first, then add depth. Keep replies to 2-3 sentences max."},
+  {id:4,name:"Nina",age:25,location:"Kraków, PL",photos:["https://i.pravatar.cc/400?img=5"],initials:"N",bgColor:"#FDECEF",textColor:"#8E2D4F",bio:"Photographer chasing golden hour.",tags:["Photography","City Walks","Cinema","Travel"],facts:["📸 Street photographer","🎞️ Analog fan","🧭 Weekend explorer"],matched:true,suggestions:["Best hidden photo spot in your city?"],aiPersona:"You are Nina, 25, expressive and visual. Answer the user's question with vivid details. Keep replies to 2-3 sentences max."},
+  {id:5,name:"Adam",age:31,location:"Brno, CZ",photos:["https://i.pravatar.cc/400?img=20"],initials:"A",bgColor:"#EAF2FF",textColor:"#1F4B9A",bio:"Product manager, runner, board-game strategist.",tags:["Running","Board Games","Product","Podcasts"],facts:["🏃 Half-marathoner","🎲 Catan rival","🎧 Podcast addict"],matched:true,suggestions:["What board game reveals personality best?"],aiPersona:"You are Adam, 31, sharp, practical, and playful. Answer the user's question first, then add wit. Keep replies to 2-3 sentences max."},
+  {id:6,name:"Elena",age:28,location:"Budapest, HU",photos:["https://i.pravatar.cc/400?img=32"],initials:"E",bgColor:"#F5F0FF",textColor:"#5A3C91",bio:"Architect who sketches cafes and old facades.",tags:["Architecture","Sketching","Cafes","History"],facts:["🏛️ Restores old spaces","✏️ Sketchbook everywhere","🫖 Tea person"],matched:false,suggestions:["Modern or historic architecture — and why?"],aiPersona:"You are Elena, 28, reflective and articulate architect. Answer the user's question with sensory detail and warmth. Keep replies to 2-3 sentences max."},
+  {id:7,name:"Tomáš",age:30,location:"Žilina, SK",photos:["https://i.pravatar.cc/400?img=55"],initials:"T",bgColor:"#ECFBF4",textColor:"#116B4E",bio:"Startup dev who escapes to mountains every month.",tags:["Startups","Mountains","Cycling","Tech"],facts:["⛰️ Trail regular","🚴 Weekend cyclist","💡 Side-project builder"],matched:true,suggestions:["Mountains or sea for a reset weekend?"],aiPersona:"You are Tomáš, 30, energetic and straightforward startup developer. Answer the user's question first, then add personality. Keep replies to 2-3 sentences max."}
+];
+
+let currentIdx=0,aiEnabled=true,currentProfile=null,isSwiping=false,isSending=false;
+const histories={};
+profiles.forEach(p=>{
+  histories[p.id]=p.matched?[{role:'assistant',text:`Hey! I noticed you're into ${p.tags[0].toLowerCase()} too. Ask me anything 👀`}]:[];
+});
+
+function makeAvatar(cls,bg,col,init){
+  const d=document.createElement('div');
+  d.className=cls;d.style.background=bg;d.style.color=col;d.textContent=init;
+  return d;
+}
+
+function makeAvatarWithImg(src,imgCls,fallCls,bg,col,init){
+  const img=document.createElement('img');
+  img.className=imgCls;img.src=src;img.alt='';
+  img.onerror=()=>img.replaceWith(makeAvatar(fallCls,bg,col,init));
+  return img;
+}
+
+function setActionBtns(disabled){
+  ['btn-nope','btn-super','btn-like'].forEach(id=>{document.getElementById(id).disabled=disabled;});
+}
+
+function renderCard(){
+  const stack=document.getElementById('card-stack');
+  if(currentIdx>=profiles.length){
+    stack.innerHTML='<div class="empty-state">You\'ve seen everyone nearby!</div>';return;
+  }
+  const p=profiles[currentIdx];
+  const aa=document.getElementById('avatar-area');
+  aa.innerHTML='';
+  const img=document.createElement('img');
+  img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+  img.src=p.photos[0];img.alt=p.name;
+  const fb=makeAvatar('',p.bgColor,p.textColor,p.initials);
+  fb.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;font-weight:500;display:none`;
+  img.onerror=()=>{img.style.display='none';fb.style.display='flex';};
+  aa.appendChild(img);aa.appendChild(fb);
+  const dots=document.createElement('div');dots.className='photo-dots';
+  const d=document.createElement('div');d.className='dot active';dots.appendChild(d);
+  aa.appendChild(dots);
+  const ov=document.createElement('div');ov.className='profile-overlay';
+  ov.innerHTML=`<div class="profile-name">${p.name}, ${p.age}</div><div class="profile-loc">📍 ${p.location}</div>`;
+  aa.appendChild(ov);
+  document.getElementById('pbio').textContent=p.bio;
+  document.getElementById('ptags').innerHTML=p.tags.map(t=>`<div class="tag">${t}</div>`).join('');
+  document.getElementById('pfacts').innerHTML=p.facts.map(f=>`<div class="fact">${f}</div>`).join('');
+}
+
+function showMatchToast(p,onMsg,onSkip){
+  const toast=document.getElementById('match-toast');
+  const mtAv=document.getElementById('mt-av');
+  mtAv.style.background=p.bgColor;mtAv.style.color=p.textColor;mtAv.textContent=p.initials;
+  document.getElementById('mt-sub').textContent=`You and ${p.name} liked each other`;
+  toast.classList.add('show');
+  document.getElementById('mt-msg-btn').onclick=()=>{toast.classList.remove('show');onMsg();};
+  document.getElementById('mt-skip-btn').onclick=()=>{toast.classList.remove('show');onSkip();};
+}
+
+function advanceCard(){currentIdx++;setActionBtns(false);renderCard();}
+
+function swipe(direction){
+  if(isSwiping)return;
+  const p=profiles[currentIdx];
+  const card=document.getElementById('profile-card');
+  isSwiping=true;setActionBtns(true);
+  const flyClass=direction==='right'?'fly-right':direction==='left'?'fly-left':'fly-up';
+  card.classList.add(flyClass);
+  const isLike=(direction==='right'||direction==='up');
+  setTimeout(()=>{
+    card.classList.remove(flyClass);
+    if(isLike&&p.matched){
+      renderCard();isSwiping=false;setActionBtns(true);
+      showMatchToast(p,()=>{advanceCard();openChat(p);switchScreen('chat');},()=>{advanceCard();});
+    }else{advanceCard();isSwiping=false;}
+  },400);
+}
+
+document.getElementById('btn-like').onclick=()=>swipe('right');
+document.getElementById('btn-nope').onclick=()=>swipe('left');
+document.getElementById('btn-super').onclick=()=>swipe('up');
+
+function renderMatches(){
+  const matched=profiles.filter(p=>p.matched);
+  const ms=document.getElementById('match-scroll');
+  ms.innerHTML='';
+  matched.forEach(p=>{
+    const w=document.createElement('div');w.className='match-bubble';
+    w.onclick=()=>{openChat(p);switchScreen('chat');};
+    const av=makeAvatar('mb-fall',p.bgColor,p.textColor,p.initials);
+    w.appendChild(av);
+    const nm=document.createElement('div');nm.className='match-name-sm';nm.textContent=p.name;
+    w.appendChild(nm);ms.appendChild(w);
+  });
+  const cl=document.getElementById('conv-list');
+  cl.innerHTML='';
+  matched.forEach(p=>{
+    const hist=histories[p.id];
+    const last=hist.length?hist[hist.length-1].text:'Say hello!';
+    const item=document.createElement('div');item.className='conv-item';
+    item.onclick=()=>{openChat(p);switchScreen('chat');};
+    const av=makeAvatar('conv-av-fall',p.bgColor,p.textColor,p.initials);
+    item.appendChild(av);
+    const info=document.createElement('div');info.className='conv-info';
+    info.innerHTML=`<div class="conv-name">${p.name}<span class="ai-badge">✦ AI</span></div><div class="conv-preview">${last.substring(0,52)}${last.length>52?'…':''}</div>`;
+    item.appendChild(info);
+    const t=document.createElement('div');t.className='conv-time';t.textContent='now';
+    item.appendChild(t);cl.appendChild(item);
+  });
+}
+
+function openChat(p){
+  currentProfile=p;
+  const wrap=document.getElementById('chat-av-wrap');
+  wrap.innerHTML='';
+  wrap.appendChild(makeAvatar('chat-av-fall',p.bgColor,p.textColor,p.initials));
+  document.getElementById('chat-hname').textContent=p.name;
+  document.getElementById('chat-hsub').textContent=`${p.age} · ${p.location}`;
+  renderMessages();renderSuggestions();
+}
+
+function renderMessages(){
+  if(!currentProfile)return;
+  const hist=histories[currentProfile.id];
+  const c=document.getElementById('messages');
+  c.innerHTML='';
+  if(!hist.length){
+    c.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--color-text-tertiary);font-size:13px">Start the conversation ✨</div>';return;
+  }
+  hist.forEach(msg=>{
+    const d=document.createElement('div');
+    d.className='msg '+(msg.role==='user'?'me':'them');
+    d.textContent=msg.text;c.appendChild(d);
+  });
+  setTimeout(()=>{c.scrollTop=c.scrollHeight;},30);
+}
+
+function renderSuggestions(){
+  const row=document.getElementById('suggest-row');
+  if(!aiEnabled||!currentProfile){row.innerHTML='';return;}
+  row.innerHTML=currentProfile.suggestions.map(s=>`<div class="suggest-chip" onclick="useSuggestion('${s.replace(/'/g,"\\'")}')">✦ ${s}</div>`).join('');
+}
+
+function useSuggestion(text){
+  document.getElementById('chat-input').value=text;
+  document.getElementById('chat-input').focus();
+}
+
+async function callClaude(profile,history){
+  const messages=history.map(m=>({role:m.role,content:m.text}));
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:profile.aiPersona,
+        messages
+      })
+    });
+    if(!resp.ok){
+      const err=await resp.text();
+      console.error('Claude API error:',resp.status,err);
+      return {reply:null,error:`http_${resp.status}`};
+    }
+    const data=await resp.json();
+    const reply=data?.content?.[0]?.text?.trim()||null;
+    return {reply,error:reply?null:'empty'};
+  }catch(e){
+    console.error('Claude API error:',e);
+    return {reply:null,error:'network'};
+  }
+}
+
+async function sendMessage(){
+  if(isSending||!currentProfile)return;
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();if(!text)return;
+  isSending=true;input.value='';
+  histories[currentProfile.id].push({role:'user',text});
+  renderMessages();renderMatches();
+
+  if(aiEnabled){
+    const msgs=document.getElementById('messages');
+    const typing=document.createElement('div');
+    typing.className='msg typing';typing.textContent=`✦ ${currentProfile.name} is typing…`;
+    msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
+    try{
+      const result=await callClaude(currentProfile,[...histories[currentProfile.id]]);
+      const finalText=result.reply||'Hmm, I got a bit distracted — ask me again? 😄';
+      histories[currentProfile.id].push({role:'assistant',text:finalText});
+    }finally{
+      typing.remove();renderMessages();renderMatches();
+    }
+  }
+  isSending=false;
+}
+
+document.getElementById('send-btn').onclick=sendMessage;
+document.getElementById('chat-input').onkeydown=e=>{if(e.key==='Enter')sendMessage();};
+document.getElementById('back-btn').onclick=()=>switchScreen('matches');
+document.getElementById('ai-toggle').onclick=function(){
+  aiEnabled=!aiEnabled;
+  this.textContent=aiEnabled?'✦ AI on':'○ AI off';
+  this.className='ai-toggle'+(aiEnabled?'':' off');
+  renderSuggestions();
+};
+
+function switchScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b=>{
+    const isActive=b.dataset.screen===name||(name==='chat'&&b.dataset.screen==='matches');
+    b.style.color=isActive?'#D4537E':'var(--color-text-tertiary)';
+  });
+  if(name==='matches')renderMatches();
+}
+
+document.querySelectorAll('.bnav-btn').forEach(btn=>{
+  btn.onclick=()=>switchScreen(btn.dataset.screen);
+});
+
+renderCard();renderMatches();
+</script>
+</body>
+</html>
